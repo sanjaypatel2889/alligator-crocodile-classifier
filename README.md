@@ -1,203 +1,208 @@
-# Alligator vs Crocodile Image Classification
-### Tilesview AI — Interview Task
+# Alligator vs Crocodile — Image Classification
 
-Binary image classification pipeline using **MobileNetV2** and **ResNet50**
-with PyTorch, comparing both models and selecting the best by Weighted F1 Score.
+**Tilesview AI Interview Task**
+
+Binary image classification using deep learning (PyTorch).
+Two models trained and compared — best selected automatically by Weighted F1 Score.
+Includes a live Streamlit dashboard for real-time inference.
+
+---
+
+## Results
+
+| Model | Accuracy | Precision | Recall | F1 Score |
+|-------|----------|-----------|--------|----------|
+| MobileNetV2 | 65.86% | 0.6604 | 0.6586 | 0.6585 |
+| **ResNet50** | **67.75%** | **0.6787** | **0.6775** | **0.6758** |
+
+**Best Model: ResNet50** — selected by highest Weighted F1 Score on the validation set (n = 741).
+
+---
+
+## Project Overview
+
+This project builds a complete end-to-end pipeline to classify images of alligators and crocodiles using transfer learning on pretrained ImageNet models.
+
+**What it does:**
+- Analyses the dataset for class imbalance and corrupted files
+- Trains MobileNetV2 and ResNet50 with data augmentation and imbalance handling
+- Evaluates both models with Accuracy, Precision, Recall, F1, and confusion matrices
+- Selects the best model automatically
+- Runs inference on new images with confidence overlay
+- Provides an interactive Streamlit dashboard for live predictions
+
+---
+
+## Dataset
+
+| Class | Images | Formats |
+|-------|--------|---------|
+| Alligator | 1,727 | jpg, jpeg, png, webp |
+| Crocodile | 1,977 | jpg, jpeg, png, webp |
+| **Total** | **3,704** | |
+
+Mild class imbalance (1.14 : 1) handled with `WeightedRandomSampler` + weighted `CrossEntropyLoss`.
+
+---
+
+## Model Architecture
+
+### MobileNetV2 — Lightweight Baseline
+- Pretrained ImageNet backbone (fully frozen)
+- Custom 2-layer classifier head
+- ~300K trainable parameters
+- Fast training, suitable for edge deployment
+
+### ResNet50 — Deep Feature Extractor
+- Pretrained ImageNet backbone (layers 1–3 frozen, layer4 fine-tuned)
+- Custom 2-layer classifier head
+- ~6.5M trainable parameters
+- Stronger spatial feature representations
+
+---
+
+## Training Setup
+
+| Component | Detail |
+|-----------|--------|
+| Framework | PyTorch |
+| Input size | 224 × 224 |
+| Normalisation | ImageNet mean/std |
+| Augmentation | RandomFlip, RandomRotation, ColorJitter, RandomResizedCrop |
+| Loss | CrossEntropyLoss with class weights |
+| Optimiser | Adam (lr = 1e-3) |
+| Scheduler | ReduceLROnPlateau (patience = 3) |
+| Epochs | 12 |
+| Train / Val split | 80% / 20% (seed = 42) |
+
+---
+
+## Setup
+
+```bash
+# Clone the repo
+git clone https://github.com/sanjaypatel2889/alligator-crocodile-classifier.git
+cd alligator-crocodile-classifier
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+**GPU (CUDA 11.8):**
+```bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+```
+
+**GPU (CUDA 12.1):**
+```bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+```
+
+> Add your dataset folder as `dataset/alligator/` and `dataset/crocodile/` before running.
+
+---
+
+## Run the Pipeline
+
+### Step 1 — Dataset Analysis
+```bash
+python dataset_analysis.py
+```
+Scans images, flags corrupted files, reports class distribution.
+
+### Step 2 — Training
+```bash
+python train.py
+```
+Trains both models, evaluates, generates confusion matrices and training curves,
+saves the best model to `models/best_model.pth`.
+
+### Step 3 — Evaluate
+```bash
+python evaluate.py
+```
+Loads the best checkpoint and prints full metrics on the validation set.
+
+### Step 4 — Predict
+```bash
+python predict.py                          # 40 random val images
+python predict.py --input path/to/image.jpg   # single image
+python predict.py --input path/to/folder      # entire folder
+```
+Each output image has an OpenCV confidence overlay:
+```
+Predicted: Crocodile  |  Confidence: 87%
+```
+
+### Step 5 — Dashboard
+```bash
+streamlit run app.py
+```
+Opens at **http://localhost:8501**
+
+---
+
+## Streamlit Dashboard
+
+6-page interactive dashboard:
+
+| Page | Content |
+|------|---------|
+| Home | Project overview and best model metrics |
+| Dataset Analysis | Class distribution chart and imbalance report |
+| Live Prediction | Upload any image → instant Alligator / Crocodile result |
+| Training Results | Training curves and confusion matrices |
+| Error Analysis | Grid of misclassified images |
+| Conclusion | Full conclusion document and model comparison chart |
 
 ---
 
 ## Project Structure
 
 ```
-TILESVIEW.AI/
-├── dataset/
-│   ├── alligator/          # 1,727 images  (jpg, jpeg, png, webp)
-│   └── crocodile/          # 1,978 images  (jpg, jpeg, png, webp)
-│
-├── models/
-│   ├── best_model.pth                    # Best model checkpoint (auto-selected)
-│   ├── best_mobilenetv2.pth              # MobileNetV2 best checkpoint
-│   └── best_resnet50.pth                 # ResNet50 best checkpoint
-│
-├── outputs/
-│   ├── dataset_report.txt                # Dataset quality + imbalance report
-│   ├── model_comparison.txt              # MobileNetV2 vs ResNet50 metrics
-│   ├── evaluation_report.txt             # Full evaluation report
-│   ├── val_indices.json                  # Reproducible validation split
-│   ├── confusion_matrix/                 # Confusion matrix PNGs
-│   ├── training_plots/                   # Loss / Accuracy / F1 curves
-│   ├── misclassified/                    # Plain copies of wrong predictions
-│   └── wrong_predictions/               # OpenCV-annotated wrong predictions
-│
-├── predictions/                          # Inference output (annotated images)
-│   └── prediction_summary.txt
+alligator-crocodile-classifier/
+├── dataset_analysis.py       # Dataset scan and validation
+├── train.py                  # Full training pipeline
+├── evaluate.py               # Metrics and evaluation report
+├── predict.py                # Inference with OpenCV overlay
+├── app.py                    # Streamlit dashboard
+├── requirements.txt
 │
 ├── conclusion/
-│   └── conclusion.txt                    # One-page professional summary
+│   └── conclusion.txt        # One-page project conclusion
 │
-├── dataset_analysis.py                   # Step 0: dataset scan & validation
-├── train.py                              # Step 1: full training pipeline
-├── evaluate.py                           # Step 2: evaluation & metrics
-├── predict.py                            # Step 3: inference on new images
-├── requirements.txt
-└── README.md
+├── outputs/
+│   ├── confusion_matrix/     # Confusion matrix PNGs
+│   ├── training_plots/       # Loss / Accuracy / F1 curves
+│   └── model_comparison.txt  # Side-by-side metric comparison
+│
+├── predictions/              # Sample inference output images
+│
+└── models/                   # Trained checkpoints (not tracked in git)
+    ├── best_model.pth
+    ├── best_mobilenetv2.pth
+    └── best_resnet50.pth
 ```
-
----
-
-## Setup
-
-### 1. Create a virtual environment (recommended)
-
-```bash
-python -m venv venv
-# Windows
-venv\Scripts\activate
-# Linux / macOS
-source venv/bin/activate
-```
-
-### 2. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-**GPU users — CUDA 11.8:**
-```bash
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
-```
-
-**GPU users — CUDA 12.1:**
-```bash
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
-```
-
----
-
-## Execution Commands
-
-### Step 0 — Dataset Analysis (optional but recommended)
-```bash
-python dataset_analysis.py
-```
-Scans every image, flags corrupted/unsupported files, reports class imbalance.
-Output → `outputs/dataset_report.txt`
-
----
-
-### Step 1 — Training
-```bash
-python train.py
-```
-- Downloads pretrained ImageNet weights for MobileNetV2 and ResNet50.
-- Trains both models for 12 epochs with `ReduceLROnPlateau` scheduler.
-- Saves best checkpoint per model (by Validation F1 Score).
-- Generates confusion matrices, training curves, error analysis.
-- Compares both models and copies the winner to `models/best_model.pth`.
-
-Output artefacts:
-```
-models/best_model.pth
-models/best_mobilenetv2.pth
-models/best_resnet50.pth
-outputs/confusion_matrix/*.png
-outputs/training_plots/*.png
-outputs/misclassified/
-outputs/wrong_predictions/
-outputs/model_comparison.txt
-conclusion/conclusion.txt
-```
-
----
-
-### Step 2 — Evaluation
-```bash
-python evaluate.py
-```
-Loads `models/best_model.pth`, reconstructs the exact validation split,
-and prints/saves a full evaluation report.
-
-Output → `outputs/evaluation_report.txt`
-
----
-
-### Step 3 — Prediction
-```bash
-# Predict on a folder of images
-python predict.py --input path/to/folder
-
-# Predict a single image
-python predict.py --input path/to/image.jpg
-
-# Default: 40 random validation images
-python predict.py
-
-# Control sample size
-python predict.py --sample 60
-```
-
-Each output image has an OpenCV overlay:
-```
-Predicted: Crocodile  |  Confidence: 92%
-```
-Output → `predictions/`
-
----
-
-## Pipeline Design
-
-| Component             | Choice                                |
-|-----------------------|---------------------------------------|
-| Framework             | PyTorch                               |
-| Model A               | MobileNetV2 (frozen backbone)         |
-| Model B               | ResNet50 (layer4 + fc unfrozen)       |
-| Input resolution      | 224 × 224                             |
-| Normalisation         | ImageNet mean/std                     |
-| Augmentations         | Flip, Rotation, ColorJitter, Crop     |
-| Loss function         | CrossEntropyLoss with class weights   |
-| Optimiser             | Adam (lr = 1e-3)                      |
-| LR scheduler          | ReduceLROnPlateau (mode=max, pat=3)   |
-| Imbalance handling    | WeightedRandomSampler + weighted loss |
-| Model selection       | Highest Weighted F1 Score             |
-| Epochs                | 12                                    |
-| Train / Val split     | 80 % / 20 % (fixed seed = 42)         |
-
----
-
-## Dataset Summary
-
-| Class      | Count  | Format(s)              |
-|------------|--------|------------------------|
-| Alligator  | 1,727  | jpg, jpeg, png, webp   |
-| Crocodile  | 1,978  | jpg, jpeg, png, webp   |
-| **Total**  | **3,705** |                     |
-
-Mild imbalance (~1.14 : 1) — handled with `WeightedRandomSampler`
-and `CrossEntropyLoss(weight=...)`.
 
 ---
 
 ## Key Observations
 
-- **Snout geometry** (broad U = alligator, tapered V = crocodile) is the
-  primary visual differentiator but is invisible in pure side-angle shots.
-- **Mud/water coverage** erases skin texture cues used by the backbone.
-- **Juvenile specimens** share similar proportions across species.
-- ResNet50 (unfrozen layer4) typically outperforms MobileNetV2 on this task
-  due to richer feature representations, at the cost of ~8× more parameters.
+- **Snout geometry** (broad U = alligator, tapered V = crocodile) is the primary visual differentiator — invisible in side-angle shots
+- **Mud/water coverage** erases skin texture cues that the backbone relies on
+- **Juvenile specimens** share similar proportions across species, increasing confusion
+- ResNet50 achieved 74% recall on crocodiles, showing stronger discrimination for the majority class
 
 ---
 
-## Batch Scripts (Windows)
+## Submission
 
-| Script             | Action                |
-|--------------------|-----------------------|
-| `1_dataset.bat`    | Run dataset analysis  |
-| `2_train.bat`      | Run training          |
-| `3_evaluate.bat`   | Run evaluation        |
-| `4_predict.bat`    | Run prediction        |
+| Deliverable | File |
+|-------------|------|
+| Conclusion document | `conclusion/conclusion.txt` |
+| Prediction images | `predictions/` (28 annotated images) |
+| Model comparison | `outputs/model_comparison.txt` |
 
 ---
 
-*Tilesview AI Interview Task — Professional Deep Learning Pipeline*
+*Sriram Sanjay — Tilesview AI Interview Task*
