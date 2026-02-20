@@ -1,0 +1,20 @@
+==============================================================
+  MODEL COMPARISON REPORT
+  Alligator vs Crocodile — Tilesview AI
+  Generated: 2026-02-19 22:23:50
+==============================================================
+
+  Metric         |      MobileNetV2 |         ResNet50
+--------------------------------------------------------------
+  Accuracy       |         0.6586   |         0.6775 *
+  Precision      |         0.6604   |         0.6787 *
+  Recall         |         0.6586   |         0.6775 *
+  F1 Score       |         0.6585   |         0.6758 *
+
+--------------------------------------------------------------
+  Best Model (by Weighted F1) : ResNet50
+
+  Selection Criteria:
+    Weighted F1 Score balances precision and recall across
+    both classes and is robust to mild class imbalance.
+==============================================================

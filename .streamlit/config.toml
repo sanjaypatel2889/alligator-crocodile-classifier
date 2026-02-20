@@ -1,0 +1,5 @@
+[server]
+fileWatcherType = "none"   # Prevents torch._classes watcher crash
+
+[browser]
+gatherUsageStats = false

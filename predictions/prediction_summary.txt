@@ -1,0 +1,26 @@
+Model : ResNet50
+Images: 20
+GT Accuracy: 14/20 = 70.00%
+
+Filename  |  Prediction  |  Confidence  |  Ground Truth
+----------------------------------------------------------------------
+alligator231.jpg  |  Alligator  |  0.6812  |  GT:alligator
+crocodile701.jpg  |  Crocodile  |  0.5427  |  GT:crocodile
+crocodile1400.jpg  |  Crocodile  |  0.6574  |  GT:crocodile
+alligator1084.jpg  |  Alligator  |  0.9870  |  GT:alligator
+alligator1095.jpg  |  Alligator  |  0.9934  |  GT:alligator
+crocodile1208.jpg  |  Crocodile  |  0.6858  |  GT:crocodile
+alligator615.jpg  |  Crocodile  |  0.6639  |  GT:alligator
+crocodile809.jpg  |  Crocodile  |  0.6882  |  GT:crocodile
+alligator188.jpg  |  Crocodile  |  0.6143  |  GT:alligator
+crocodile1213.jpg  |  Crocodile  |  0.7287  |  GT:crocodile
+alligator923.jpg  |  Crocodile  |  0.6788  |  GT:alligator
+crocodile223.jpg  |  Crocodile  |  0.5210  |  GT:crocodile
+crocodile1054.jpg  |  Crocodile  |  0.7298  |  GT:crocodile
+crocodile1903.jpg  |  Alligator  |  0.8361  |  GT:crocodile
+alligator191.jpg  |  Alligator  |  0.7816  |  GT:alligator
+alligator1537.jpg  |  Alligator  |  0.7601  |  GT:alligator
+crocodile1652.jpeg  |  Crocodile  |  0.7951  |  GT:crocodile
+alligator1452.jpg  |  Alligator  |  0.5444  |  GT:alligator
+alligator816.jpg  |  Crocodile  |  0.8539  |  GT:alligator
+alligator911.jpg  |  Crocodile  |  0.5281  |  GT:alligator

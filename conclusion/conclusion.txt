@@ -1,0 +1,54 @@
+==============================================================
+  CONCLUSION — Alligator vs Crocodile Image Classification
+  Submitted by: Sriram Sanjay  |  Tilesview AI Interview Task
+==============================================================
+
+MODELS TRIED
+--------------------------------------------
+1. MobileNetV2  (lightweight baseline)
+   - Frozen ImageNet backbone + custom 2-layer classifier head
+   - ~300 K trainable parameters
+   - Fast training, suitable for edge deployment
+
+2. ResNet50  (deep feature extractor)
+   - Frozen layers 1–3, fine-tuned layer4 + custom classifier head
+   - ~6.5 M trainable parameters
+   - Stronger spatial feature learning
+
+BEST MODEL: ResNet50
+--------------------------------------------
+ResNet50 outperformed MobileNetV2 on every metric.
+Selection criterion: Weighted F1 Score — it balances precision
+and recall across both classes and is robust to mild class
+imbalance (1,727 alligator vs 1,977 crocodile images).
+
+FINAL METRICS  (ResNet50 — Validation Set, n = 741)
+--------------------------------------------
+  Accuracy  :  67.75 %
+  Precision :  0.6787
+  Recall    :  0.6775
+  F1 Score  :  0.6758
+
+  Per-class breakdown:
+    Alligator  — Precision 0.69 | Recall 0.61 | F1 0.65
+    Crocodile  — Precision 0.67 | Recall 0.74 | F1 0.70
+
+COMPARISON TABLE
+--------------------------------------------
+  Metric      |  MobileNetV2  |  ResNet50 (best)
+  ------------|---------------|----------------
+  Accuracy    |    65.86 %    |    67.75 %  *
+  Precision   |    0.6604     |    0.6787   *
+  Recall      |    0.6586     |    0.6775   *
+  F1 Score    |    0.6585     |    0.6758   *
+
+KEY OBSERVATIONS
+--------------------------------------------
+• Side-angle head shots hide the snout shape (U vs V),
+  the primary visual differentiator — most confusion here.
+• Mud/water coverage and juvenile specimens also increased
+  misclassification rates.
+• ResNet50 correctly identified 74 % of crocodiles,
+  showing stronger discrimination for the majority class.
+
+==============================================================

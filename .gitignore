@@ -1,0 +1,32 @@
+# Dataset (not tracked — too large)
+dataset/
+
+# Trained model weights (too large for GitHub)
+models/*.pth
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Misclassified image dumps (100 images each — excluded)
+outputs/misclassified/
+outputs/wrong_predictions/
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Env
+.env
+venv/
+env/
